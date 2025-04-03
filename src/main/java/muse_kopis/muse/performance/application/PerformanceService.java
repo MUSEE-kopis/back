@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import muse_kopis.muse.actor.domain.CastMember;
-import muse_kopis.muse.actor.domain.CastMemberRepository;
 import muse_kopis.muse.actor.domain.FavoriteActor;
 import muse_kopis.muse.actor.domain.FavoriteActorRepository;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
