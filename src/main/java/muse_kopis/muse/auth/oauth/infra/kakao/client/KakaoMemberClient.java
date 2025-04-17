@@ -1,15 +1,13 @@
-package muse_kopis.muse.auth.oauth.infra.kakao;
+package muse_kopis.muse.auth.oauth.infra.kakao.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
-import muse_kopis.muse.auth.oauth.domain.OauthMemberRepository;
 import muse_kopis.muse.auth.oauth.domain.OauthServerType;
 import muse_kopis.muse.auth.oauth.domain.client.OauthMemberClient;
-import muse_kopis.muse.auth.oauth.infra.kakao.client.KakaoApiClient;
+import muse_kopis.muse.auth.oauth.infra.kakao.KakaoOauthConfig;
 import muse_kopis.muse.auth.oauth.infra.kakao.dto.KakaoMemberResponse;
 import muse_kopis.muse.auth.oauth.infra.kakao.dto.KakaoToken;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;

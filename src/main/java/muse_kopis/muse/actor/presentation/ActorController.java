@@ -32,7 +32,7 @@ public class ActorController {
     }
 
     /**
-     * @apiNote Actors Favorites
+     * @apiNote Favorites Actors
      * @param Long memberId (JWT Token)
      * @return List<ActorDto>
      */
@@ -42,6 +42,11 @@ public class ActorController {
         return ResponseEntity.ok().body(actorService.favorites(memberId));
     }
 
+    /**
+     * @apiNote Search Actor
+     * @param actorName
+     * @return List<ActorDto>
+     */
     @GetMapping("/search")
     @Operation(summary = "배우 검색", description = "검색어를 통해 배우를 조회합니다.")
     public ResponseEntity<List<ActorDto>> findActors(@RequestParam String actorName) {

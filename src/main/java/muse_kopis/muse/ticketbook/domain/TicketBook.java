@@ -85,6 +85,6 @@ public class TicketBook {
     }
 
     public Boolean shareValidate() {
-        return this.identifier == null || identifier.isEmpty();
+        return this.identifier == null || this.identifier.isEmpty();
     }
 }
