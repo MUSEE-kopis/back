@@ -36,8 +36,8 @@ public enum GenreType {
     ORIGINAL_OR_INTERNATIONAL("오리지널/내한공연"),
     CREATIVE_MUSICAL("창작 뮤지컬"),
     NUMBER_PERFORMANCE("넘버별 퍼포먼스"),
-    ETC_MUSICAL("기타 뮤지컬");
-
+    ETC_MUSICAL("기타 뮤지컬"),
+    LICENSE("라이선스");
     GenreType(String genre) {
     }
 }
