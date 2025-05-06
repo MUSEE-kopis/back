@@ -2,6 +2,8 @@ package muse_kopis.muse.performance.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,8 +44,10 @@ public class Performance {
     private String entertainment;
     @Column(length = 1000)
     private String performanceTime;
+    @Enumerated(EnumType.STRING)
     private GenreType genreType;
     private Double score;
+    private String ticketLink;
 
     public static Performance from(Detail performanceDetail) {
         return Performance.builder()

@@ -24,7 +24,7 @@ public class MemberInfoController {
 
     /**
      * @apiNote Member Info Get
-     * @param memberId
+     * @param memberId 
      * @return MemberInfoResponse
      */
     @Operation(summary = "사용자 정보", description = "모델 학습을 위해 사용자 정보를 수집한 것을 조회합니다.")
@@ -48,7 +48,7 @@ public class MemberInfoController {
     /**
      * @apiNote Member Info Delete
      * @param memberId
-     * @return
+     * * @return ResponseEntity with empty body and OK status when deletion is successful
      */
     @Operation(summary = "사용자 정보 삭제", description = "수집한 사용자 정보를 삭제 합니다.")
     @DeleteMapping

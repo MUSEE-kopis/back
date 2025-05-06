@@ -56,6 +56,7 @@ public class UserGenreService {
 
     private void weightUpdate(OauthMember oauthMember, Performance performance) {
         List<Genre> genre = genreRepository.findAllByPerformance(performance);
+        log.info(genre.toString());
         UserGenre userGenre = userGenreRepository.findByOauthMember(oauthMember)
                 .orElseGet(() -> initGenre(oauthMember));
         try {
@@ -73,9 +74,9 @@ public class UserGenreService {
     @Transactional
     public List<PerformanceResponse> showOnboarding() {
         List<Long> performanceIds = Arrays.asList(
-                38L, 103L, 118L, 124L, 134L, 139L, 170L, 177L, 181L, 194L,
-                202L, 243L, 252L, 255L, 260L, 280L, 300L, 305L, 324L, 395L,
-                436L, 460L, 463L, 481L, 722L, 884L, 924L, 1000L, 1161L, 1235L
+                1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L,
+                11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L,
+                21L, 22L, 23L, 24L, 25L, 26L, 27L, 28L, 29L, 30L
         );
         List<Performance> performances = performanceRepository.findAllByIdIn(performanceIds);
         return performances.stream().map(PerformanceResponse::from).toList();

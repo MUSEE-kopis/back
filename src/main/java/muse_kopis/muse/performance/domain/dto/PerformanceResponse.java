@@ -17,7 +17,8 @@ public record PerformanceResponse(
         String performanceTime,
         String limitAge,
         List<CastMemberDto> castMembers,
-        String entertainment
+        String entertainment,
+        String ticketLink
 ) {
     public static PerformanceResponse from(Performance performance) {
         return PerformanceResponse.builder()
@@ -34,6 +35,7 @@ public record PerformanceResponse(
                         .map(CastMemberDto::from)
                         .toList())
                 .entertainment(performance.getEntertainment())
+                .ticketLink(performance.getTicketLink())
                 .build();
     }
 }
