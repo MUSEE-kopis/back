@@ -35,7 +35,7 @@ public enum GenreType {
     TALK_CONCERT("토크콘서트"),
     ORIGINAL_OR_INTERNATIONAL("오리지널/내한공연"),
     CREATIVE_MUSICAL("창작 뮤지컬"),
-    NONVERBAL_PERFORMANCE("넘버별 퍼포먼스"),
+    NUMBER_PERFORMANCE("넘버별 퍼포먼스"),
     ETC_MUSICAL("기타 뮤지컬");
 
     GenreType(String genre) {
