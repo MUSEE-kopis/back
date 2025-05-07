@@ -44,7 +44,7 @@ public class ActorController {
 
     /**
      * @apiNote Search Actor
-     * @param actorName
+     * @param actorName to find Actor
      * @return List<ActorDto>
      */
     @GetMapping("/search")
