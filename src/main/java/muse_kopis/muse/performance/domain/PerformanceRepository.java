@@ -45,6 +45,9 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             "WHERE a.name = :favoriteActor")
     List<Performance> findPerformancesByFavoriteActor(@Param("favoriteActor") String favoriteActor);
 
+    @Query(value = "SELECT p FROM Performance p WHERE p.genreType = :genreType ORDER BY FUNCTION('RAND')")
+    List<Performance> findRandomByGenreType(@Param("genreType") GenreType genreType);
+
     List<Performance> findAllByPerformanceNameContains(String search);
     List<Performance> findByPerformanceName(String performanceName);
     List<Performance> findAllByIdIn(List<Long> performanceIds);

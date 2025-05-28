@@ -92,8 +92,7 @@ public class UserGenreService {
         Set<Performance> result = new LinkedHashSet<>(); // 중복 방지를 위해 Set 사용
         // 1. 장르별로 공연 수집 (최대 perGenreTarget개씩)
         for (GenreType genre : genreTypes) {
-            List<Performance> performances = performanceRepository.findAllByGenreType(genre);
-            Collections.shuffle(performances); // 랜덤 순서
+            List<Performance> performances = performanceRepository.findRandomByGenreType(genre);
             int count = 0;
             for (Performance p : performances) {
                 if (count >= perGenreTarget) break;
