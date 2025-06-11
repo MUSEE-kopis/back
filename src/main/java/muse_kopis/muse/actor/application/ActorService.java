@@ -55,7 +55,7 @@ public class ActorService {
 
     public List<ActorDto> findActorsByPerformanceId(Long performanceId, String actorName) {
         Performance performance = performanceRepository.getByPerformanceId(performanceId);
-        List<CastMember> castMembers = castMemberRepository.findAllByPerformanceAndActor_NameContaining(performance, actorName);
+        List<CastMember> castMembers = castMemberRepository.findAllByPerformanceAndActor_NameContainingIgnoreCase(performance, actorName);
         return castMembers.stream().map(castMember -> {
             Actor actor = castMember.getActor();
             return new ActorDto(actor.getName(), actor.getActorId(), actor.getUrl());
