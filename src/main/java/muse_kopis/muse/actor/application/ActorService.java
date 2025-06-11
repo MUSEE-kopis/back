@@ -1,6 +1,5 @@
 package muse_kopis.muse.actor.application;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.actor.domain.Actor;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -43,22 +43,26 @@ public class ActorService {
         return save.id();
     }
 
+    @Transactional(readOnly = true)
     public List<ActorDto> favorites(Long memberId) {
         return favoriteActorRepository.findAllByMemberId(memberId).stream()
                 .map(ActorDto::from)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<ActorDto> findActors(String actorName) {
         return actorRepository.findAllByNameIsContaining(actorName);
     }
 
+    @Transactional(readOnly = true)
     public List<ActorDto> findActorsByPerformanceId(Long performanceId, String actorName) {
         Performance performance = performanceRepository.getByPerformanceId(performanceId);
-        List<CastMember> castMembers = castMemberRepository.findAllByPerformanceAndActor_NameContainingIgnoreCase(performance, actorName);
-        return castMembers.stream().map(castMember -> {
-            Actor actor = castMember.getActor();
-            return new ActorDto(actor.getName(), actor.getActorId(), actor.getUrl());
+        return castMemberRepository
+                .findAllByPerformanceAndActor_NameContainingIgnoreCase(performance, actorName)
+                .stream()
+                .map(castMember -> {Actor actor = castMember.getActor();
+                    return new ActorDto(actor.getName(), actor.getActorId(), actor.getUrl());
         }).collect(Collectors.toList());
     }
 }

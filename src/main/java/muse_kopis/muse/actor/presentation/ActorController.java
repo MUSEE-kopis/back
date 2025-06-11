@@ -2,6 +2,7 @@ package muse_kopis.muse.actor.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +62,9 @@ public class ActorController {
      */
     @GetMapping("/search/{performanceId}")
     @Operation(summary = "해당 공연에서 배우 검색", description = "검색어를 통해 해당 공연에 출연한 배우를 조회합니다.")
-    public ResponseEntity<List<ActorDto>> findActorsByPerformanceId(@PathVariable Long performanceId, @RequestParam String actorName) {
+    public ResponseEntity<List<ActorDto>> findActorsByPerformanceId(
+            @PathVariable Long performanceId,
+            @RequestParam @NotBlank String actorName) {
         return ResponseEntity.ok().body(actorService.findActorsByPerformanceId(performanceId, actorName));
     }
 }
