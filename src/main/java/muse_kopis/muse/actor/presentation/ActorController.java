@@ -52,4 +52,16 @@ public class ActorController {
     public ResponseEntity<List<ActorDto>> findActors(@RequestParam String actorName) {
         return ResponseEntity.ok().body(actorService.findActors(actorName));
     }
+
+    /**
+     * @apiNote Search Actor By PerformanceId
+     * @param actorName to find Actor
+     * @param performanceId to find Actor
+     * @return List<ActorDto>
+     */
+    @GetMapping("/search/{performanceId}")
+    @Operation(summary = "해당 공연에서 배우 검색", description = "검색어를 통해 해당 공연에 출연한 배우를 조회합니다.")
+    public ResponseEntity<List<ActorDto>> findActorsByPerformanceId(@PathVariable Long performanceId, @RequestParam String actorName) {
+        return ResponseEntity.ok().body(actorService.findActorsByPerformanceId(performanceId, actorName));
+    }
 }
