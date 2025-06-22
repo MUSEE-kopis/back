@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import muse_kopis.muse.actor.domain.TicketBookActor;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
 import muse_kopis.muse.common.auth.UnAuthorizationException;
 import muse_kopis.muse.performance.domain.Performance;
@@ -36,7 +37,8 @@ public class TicketBook {
     private Long id;
     private LocalDateTime viewDate;
     private String venue;
-    private String castMembers;
+    @OneToMany(mappedBy = "ticketBook")
+    private List<TicketBookActor> actors;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "review_id")
     private Review review;
@@ -51,27 +53,31 @@ public class TicketBook {
             LocalDateTime viewDate,
             ReviewResponse review,
             Performance performance,
-            String castMembers
+            List<TicketBookActor> castMembers
     ) {
-        return TicketBook.builder()
+        TicketBook tempTicketBook = TicketBook.builder()
                 .oauthMember(oauthMember)
                 .viewDate(viewDate)
                 .venue(performance.getVenue())
-                .castMembers(castMembers)
-                .review(Review.builder()
-                        .star(review.star())
-                        .content(review.content())
-                        .visible(review.visible())
-                        .performance(performance)
-                        .oauthMember(oauthMember)
-                        .build())
+                .actors(castMembers)
                 .build();
+
+        tempTicketBook.review = Review.builder()
+                .star(review.star())
+                .content(review.content())
+                .visible(review.visible())
+                .performance(performance)
+                .oauthMember(oauthMember)
+                .ticketBook(tempTicketBook)
+                .build();
+        // 다시 TicketBook에 Review 세팅
+        return tempTicketBook;
     }
 
-    public void update(LocalDateTime viewDate, ReviewResponse request) {
+    public void update(LocalDateTime viewDate, ReviewResponse request, List<TicketBookActor> castMembers) {
         this.viewDate = viewDate;
         this.review = review.update(request.content(), request.star(), request.visible());
-        this.castMembers = request.castMembers();
+        this.actors = castMembers;
     }
 
     public void validate(OauthMember oauthMember) {

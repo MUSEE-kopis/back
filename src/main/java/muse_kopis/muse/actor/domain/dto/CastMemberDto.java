@@ -1,7 +1,9 @@
 package muse_kopis.muse.actor.domain.dto;
 
 import lombok.Builder;
+import muse_kopis.muse.actor.domain.Actor;
 import muse_kopis.muse.actor.domain.CastMember;
+import muse_kopis.muse.performance.domain.Performance;
 
 @Builder
 public record CastMemberDto(
