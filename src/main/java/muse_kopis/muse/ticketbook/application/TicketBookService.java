@@ -184,7 +184,7 @@ public class TicketBookService {
             Long memberId,
             Long ticketBookId,
             LocalDateTime viewDate,
-            List<String> urls,
+            List<String> photoURLs,
             Integer star,
             String content,
             Boolean visible,
@@ -211,7 +211,7 @@ public class TicketBookService {
                             .build(); // ticketBook은 아직 없음 → 아래에서 세팅
                 }).collect(Collectors.toList());
         ticketBook.update(viewDate, review, actors);
-        photoService.updateImage(ticketBook, urls);
+        photoService.updateImage(ticketBook, photoURLs);
         return ticketBookRepository.save(ticketBook).getId();
     }
 

@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -76,7 +78,21 @@ public class TicketBook {
     public void update(LocalDateTime viewDate, ReviewResponse request, List<TicketBookActor> castMembers) {
         this.viewDate = viewDate;
         this.review = review.update(request.content(), request.star(), request.visible());
-        this.actors = castMembers;
+
+        Map<Long, TicketBookActor> currentActorMap = this.actors.stream()
+                .collect(Collectors.toMap(a -> a.getActor().getId(), a -> a));
+        Map<Long, TicketBookActor> updatedActorMap =  castMembers.stream()
+                .collect(Collectors.toMap(a -> a.getActor().getId(), a -> a));
+        List<TicketBookActor> toRemove = this.actors.stream()
+                .filter(actor -> !updatedActorMap.containsKey(actor.getActor().getId()))
+                .toList();
+        List<TicketBookActor> toAdd = castMembers.stream()
+                .filter(actor -> !currentActorMap.containsKey(actor.getActor().getId()))
+                .toList();
+        this.actors.removeAll(toRemove);
+        toRemove.forEach(a -> a.ticketBook(null));
+        toAdd.forEach(a -> a.ticketBook(this));
+        this.actors.addAll(toAdd);
     }
 
     public void validate(OauthMember oauthMember) {
