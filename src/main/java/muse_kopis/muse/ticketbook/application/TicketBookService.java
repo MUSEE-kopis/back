@@ -78,34 +78,39 @@ public class TicketBookService {
             Long memberId,
             Long performanceId,
             LocalDateTime viewDate,
-            List<String> urls,
             Integer star,
             String content,
             Boolean visible,
+            List<String> photoURLs,
             List<TicketBookActorDto> castMembers
     ) {
         OauthMember oauthMember = oauthMemberRepository.getByOauthMemberId(memberId);
         Performance performance = performanceRepository.getByPerformanceId(performanceId);
 
-        ReviewResponse reviewResponse = ReviewResponse.from(oauthMember, star, content, visible, castMembers);
-
+        ReviewResponse review = ReviewResponse.from(oauthMember, star, content, visible, castMembers);
         List<TicketBookActor> actors = castMembers.stream()
                 .map(dto -> {
                     Actor actor = actorRepository.findByActorId(dto.actorId());
                     if (actor == null) {
-                        actor = actorRepository.findByName(dto.name());
+                        actor = actorRepository.findByName(dto.name())
+                                .orElseGet(() -> actorRepository.save(
+                                        Actor.builder()
+                                                .name(dto.name())
+                                                .actorId(dto.actorId())
+                                                .url(dto.url())
+                                                .build()));
                     }
                     return TicketBookActor.builder()
                             .actor(actor)
-                            .build(); // ticketBook은 아직 없음 → 아래에서 세팅
+                            .build();
                 })
                 .toList();
-        TicketBook ticketBook = TicketBook.from(oauthMember, viewDate, reviewResponse, performance, actors);
+        TicketBook ticketBook = TicketBook.from(oauthMember, viewDate, review, performance, actors);
         actors.forEach(actor -> actor.ticketBook(ticketBook));
         ticketBookRepository.save(ticketBook);
         ticketBookActorRepository.saveAll(actors);
 
-        List<Photo> photos = validPhotos(urls, ticketBook);
+        List<Photo> photos = validPhotos(photoURLs, ticketBook);
         if (!photos.isEmpty()) {
             photoRepository.saveAll(photos);
         }
@@ -192,11 +197,19 @@ public class TicketBookService {
         List<TicketBookActor> actors = castMembers.stream()
                 .map(dto -> {
                     Actor actor = actorRepository.findByActorId(dto.actorId());
+                    if (actor == null) {
+                        actor = actorRepository.findByName(dto.name())
+                                .orElseGet(() -> actorRepository.save(
+                                        Actor.builder()
+                                                .name(dto.name())
+                                                .actorId(dto.actorId())
+                                                .url(dto.url())
+                                                .build()));
+                    }
                     return TicketBookActor.builder()
                             .actor(actor)
                             .build(); // ticketBook은 아직 없음 → 아래에서 세팅
-                })
-                .toList();
+                }).collect(Collectors.toList());
         ticketBook.update(viewDate, review, actors);
         photoService.updateImage(ticketBook, urls);
         return ticketBookRepository.save(ticketBook).getId();

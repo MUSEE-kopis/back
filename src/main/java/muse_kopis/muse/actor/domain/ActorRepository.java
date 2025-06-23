@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface ActorRepository extends JpaRepository<Actor, Long> {
     List<ActorDto> findAllByNameIsContaining(String actorName);
     Actor findByActorId(String actorId);
-    Actor findByName(String name);
+    Optional<Actor> findByName(String name);
 }

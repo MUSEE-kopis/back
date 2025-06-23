@@ -37,16 +37,17 @@ public class TicketBook {
     private Long id;
     private LocalDateTime viewDate;
     private String venue;
-    @OneToMany(mappedBy = "ticketBook")
-    private List<TicketBookActor> actors;
+    private String identifier;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "review_id")
     private Review review;
     @ManyToOne(fetch = FetchType.LAZY)
     private OauthMember oauthMember;
+    @OneToMany(mappedBy = "ticketBook")
+    private List<TicketBookActor> actors;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ticketBook")
     private List<Photo> photos;
-    private String identifier;
+
 
     public static TicketBook from(
             OauthMember oauthMember,
@@ -61,7 +62,6 @@ public class TicketBook {
                 .venue(performance.getVenue())
                 .actors(castMembers)
                 .build();
-
         tempTicketBook.review = Review.builder()
                 .star(review.star())
                 .content(review.content())
@@ -70,7 +70,6 @@ public class TicketBook {
                 .oauthMember(oauthMember)
                 .ticketBook(tempTicketBook)
                 .build();
-        // 다시 TicketBook에 Review 세팅
         return tempTicketBook;
     }
 

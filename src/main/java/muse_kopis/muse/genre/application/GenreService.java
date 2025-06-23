@@ -31,13 +31,6 @@ public class GenreService {
     private final ApplicationEventPublisher eventPublisher;
     private final OauthMemberRepository oauthMemberRepository;
 
-    public void saveGenre(String performanceName, GenreType genreType) {
-        List<Performance> performances = performanceRepository.findByPerformanceName(performanceName);
-        for (Performance performance : performances) {
-            genreRepository.save(new Genre(performance, genreType));
-        }
-    }
-
     public void saveGenre(Long performanceId, List<GenreType> genreTypes, Long memberId) {
         Performance performance = performanceRepository.getByPerformanceId(performanceId);
         OauthMember oauthMember = oauthMemberRepository.getByOauthMemberId(memberId);
