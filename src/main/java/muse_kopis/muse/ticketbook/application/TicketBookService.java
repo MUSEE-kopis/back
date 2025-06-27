@@ -113,7 +113,6 @@ public class TicketBookService {
                                 .orElseGet(() -> actorRepository.save(
                                         Actor.builder()
                                                 .name(dto.name())
-                                                .actorId(dto.actorId())
                                                 .url(dto.url())
                                                 .build()));
                     }
