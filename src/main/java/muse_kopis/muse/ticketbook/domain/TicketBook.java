@@ -11,11 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import muse_kopis.muse.actor.domain.TicketBookActor;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
 import muse_kopis.muse.common.auth.UnAuthorizationException;
 import muse_kopis.muse.performance.domain.Performance;
@@ -36,42 +39,59 @@ public class TicketBook {
     private Long id;
     private LocalDateTime viewDate;
     private String venue;
-    private String castMembers;
+    private String identifier;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "review_id")
     private Review review;
     @ManyToOne(fetch = FetchType.LAZY)
     private OauthMember oauthMember;
+    @OneToMany(mappedBy = "ticketBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TicketBookActor> actors;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ticketBook")
     private List<Photo> photos;
-    private String identifier;
+
 
     public static TicketBook from(
             OauthMember oauthMember,
             LocalDateTime viewDate,
             ReviewResponse review,
             Performance performance,
-            String castMembers
+            List<TicketBookActor> castMembers
     ) {
-        return TicketBook.builder()
+        TicketBook tempTicketBook = TicketBook.builder()
                 .oauthMember(oauthMember)
                 .viewDate(viewDate)
                 .venue(performance.getVenue())
-                .castMembers(castMembers)
-                .review(Review.builder()
-                        .star(review.star())
-                        .content(review.content())
-                        .visible(review.visible())
-                        .performance(performance)
-                        .oauthMember(oauthMember)
-                        .build())
+                .actors(castMembers)
                 .build();
+        tempTicketBook.review = Review.builder()
+                .star(review.star())
+                .content(review.content())
+                .visible(review.visible())
+                .performance(performance)
+                .oauthMember(oauthMember)
+                .ticketBook(tempTicketBook)
+                .build();
+        return tempTicketBook;
     }
 
-    public void update(LocalDateTime viewDate, ReviewResponse request) {
+    public void update(LocalDateTime viewDate, ReviewResponse request, List<TicketBookActor> castMembers) {
         this.viewDate = viewDate;
         this.review = review.update(request.content(), request.star(), request.visible());
-        this.castMembers = request.castMembers();
+
+        Map<Long, TicketBookActor> currentActorMap = this.actors.stream()
+                .collect(Collectors.toMap(a -> a.getActor().getId(), a -> a));
+        Map<Long, TicketBookActor> updatedActorMap =  castMembers.stream()
+                .collect(Collectors.toMap(a -> a.getActor().getId(), a -> a));
+        List<TicketBookActor> toRemove = this.actors.stream()
+                .filter(actor -> !updatedActorMap.containsKey(actor.getActor().getId()))
+                .toList();
+        List<TicketBookActor> toAdd = castMembers.stream()
+                .filter(actor -> !currentActorMap.containsKey(actor.getActor().getId()))
+                .toList();
+        this.actors.removeAll(toRemove);
+        toAdd.forEach(a -> a.ticketBook(this));
+        this.actors.addAll(toAdd);
     }
 
     public void validate(OauthMember oauthMember) {

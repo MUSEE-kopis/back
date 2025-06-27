@@ -34,7 +34,7 @@ public record TicketBookResponse(
                 .photos(photos.stream()
                         .map(photo -> new PhotoResponse(photo.getUrl()))
                         .collect(Collectors.toList()))
-                .reviewResponse(ReviewResponse.from(ticketBook.getReview(), ticketBook.getCastMembers()))
+                .reviewResponse(ReviewResponse.from(ticketBook.getReview(), ticketBook.getActors()))
                 .performanceName(ticketBook.getReview().getPerformance().getPerformanceName())
                 .poster(ticketBook.getReview().getPerformance().getPoster())
                 .performanceId(ticketBook.getReview().getPerformance().getId())

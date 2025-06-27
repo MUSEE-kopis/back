@@ -7,12 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
 import muse_kopis.muse.performance.domain.Performance;
+import muse_kopis.muse.ticketbook.domain.TicketBook;
 
 @Entity
 @Getter
@@ -27,6 +29,8 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_id")
     private Performance performance;
+    @OneToOne(fetch = FetchType.LAZY)
+    private TicketBook ticketBook;
     private String content;
     private Integer star;
     private Boolean visible;

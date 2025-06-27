@@ -138,10 +138,10 @@ public class TicketBookController {
                                 memberId,
                                 ticketBookRequest.performanceId(),
                                 ticketBookRequest.viewDate(),
-                                ticketBookRequest.photos(),
                                 ticketBookRequest.star(),
                                 ticketBookRequest.content(),
                                 ticketBookRequest.visible(),
+                                ticketBookRequest.photos(),
                                 ticketBookRequest.castMembers()
                         )
                 );
