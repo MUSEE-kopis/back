@@ -90,7 +90,6 @@ public class TicketBook {
                 .filter(actor -> !currentActorMap.containsKey(actor.getActor().getId()))
                 .toList();
         this.actors.removeAll(toRemove);
-        toRemove.forEach(a -> a.ticketBook(null));
         toAdd.forEach(a -> a.ticketBook(this));
         this.actors.addAll(toAdd);
     }
