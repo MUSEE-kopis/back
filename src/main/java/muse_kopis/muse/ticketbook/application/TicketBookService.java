@@ -112,6 +112,7 @@ public class TicketBookService {
                         actor = actorRepository.findByName(dto.name())
                                 .orElseGet(() -> actorRepository.save(
                                         Actor.builder()
+                                                .actorId(dto.actorId().isBlank() ? String.valueOf(UUID.randomUUID()) : dto.actorId())
                                                 .name(dto.name())
                                                 .url(dto.url())
                                                 .build()));
@@ -119,7 +120,9 @@ public class TicketBookService {
                     return TicketBookActor.builder()
                             .actor(actor)
                             .build();
-                }).collect(Collectors.toList());
+                })
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private List<Photo> validPhotos(List<String> urls, TicketBook ticketBook) {

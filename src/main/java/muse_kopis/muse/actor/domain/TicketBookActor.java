@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,5 +32,19 @@ public class TicketBookActor {
 
     public void ticketBook(TicketBook ticketBook) {
         this.ticketBook = ticketBook;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TicketBookActor that = (TicketBookActor) o;
+        return Objects.equals(actor, that.actor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(actor);
     }
 }

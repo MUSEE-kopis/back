@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.actor.domain.Actor;
 import muse_kopis.muse.actor.domain.ActorRepository;
-import muse_kopis.muse.actor.domain.CastMember;
 import muse_kopis.muse.actor.domain.CastMemberRepository;
 import muse_kopis.muse.actor.domain.dto.ActorDto;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
@@ -61,8 +60,13 @@ public class ActorService {
         return castMemberRepository
                 .findAllByPerformanceAndActor_NameContainingIgnoreCase(performance, actorName)
                 .stream()
-                .map(castMember -> {Actor actor = castMember.getActor();
-                    return new ActorDto(actor.getName(), actor.getActorId(), actor.getUrl());
-        }).collect(Collectors.toList());
+                .map(castMember -> {
+                    Actor actor = castMember.getActor();
+                    return ActorDto.builder()
+                            .name(actor.getName())
+                            .actorId(actor.getActorId())
+                            .url(actor.getUrl())
+                            .build();
+                }).collect(Collectors.toList());
     }
 }
