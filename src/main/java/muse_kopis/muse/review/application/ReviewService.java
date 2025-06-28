@@ -44,9 +44,6 @@ public class ReviewService {
         oauthMemberRepository.getByOauthMemberId(memberId);
         Performance performance = performanceRepository.getByPerformanceId(performanceId);
         List<Review> reviews = reviewRepository.findAllByPerformance(performance);
-        List<Actor> castMembers = performance.getCastMembers()
-                .stream()
-                .map(CastMember::getActor).toList();
         return reviews.stream().map(ReviewResponse::from).toList();
     }
 }
