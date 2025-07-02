@@ -97,7 +97,7 @@ public class PerformanceController {
      * @return Set<PerformanceResponse>
      */
     @Operation(summary = "무작위 추천",
-            description = "무작위로 공연을 추천합니다.")
+            description = "무작위로 현재 진행중인 공연을 추천합니다.")
     @GetMapping("/random")
     public ResponseEntity<Set<PerformanceResponse>> randomPerformance(@Auth Long memberId) {
         return ResponseEntity.ok().body(performanceService.getRandomPerformance(memberId));
