@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.auth.Auth;
 import muse_kopis.muse.performance.application.PerformanceService;
+import muse_kopis.muse.performance.domain.dto.AdminSelect;
 import muse_kopis.muse.performance.domain.dto.PerformanceRequest;
 import muse_kopis.muse.performance.domain.dto.PerformanceResponse;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,6 +23,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,10 +54,22 @@ public class PerformanceController {
      * @apiNote Current Performances
      * @return List<PerformanceResponse>
      */
-    @Operation(summary = "공연중", description = "현재 진행중인 공연을 보여줍니다.")
-    @GetMapping("/state")
+    @Operation(summary = "관리자 지정 추천", description = "현재 진행중인 공연 중에서 관리자가 선택한 공연을 보여줍니다.")
+    @GetMapping("/custom")
     public ResponseEntity<List<PerformanceResponse>> getPerformances() {
         return ResponseEntity.ok().body(performanceService.findAllPerformance());
+    }
+
+    /**
+     * @param Long adminId
+     * @param AdminSelect adminSelect
+     * @return
+     */
+    @Operation(summary = "관리자 지정 추천 등록", description = "현재 진행중인 공연 중에서 관리자가 추천할 공연을 선택합니다.")
+    @PutMapping("/custom")
+    public ResponseEntity<Void> selectPerformanceByAdmin(@Auth Long adminId, @RequestBody AdminSelect adminSelect) {
+        performanceService.selectPerformanceByAdmin(adminId, adminSelect);
+        return ResponseEntity.ok().build();
     }
 
     /**
