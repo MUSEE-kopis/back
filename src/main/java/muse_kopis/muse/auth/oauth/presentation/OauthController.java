@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.auth.Auth;
+import muse_kopis.muse.auth.admin.domain.dto.AdminInfo;
 import muse_kopis.muse.auth.oauth.domain.dto.LoginResponse;
 import muse_kopis.muse.auth.jwt.JwtService;
 import muse_kopis.muse.auth.oauth.application.OauthService;

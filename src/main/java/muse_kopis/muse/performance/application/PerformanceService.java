@@ -2,7 +2,6 @@ package muse_kopis.muse.performance.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
@@ -84,13 +83,26 @@ public class PerformanceService {
     @Transactional
     public void selectPerformanceByAdmin(Long adminId, AdminSelect adminSelect) {
         if(Objects.equals(adminId, this.adminId)) {
-            List<Performance> performances = performanceRepository.findAllById(adminSelect.performanceId());
+            AdminPerformance admin = adminPerformanceRepository.getAdminPerformanceById(adminId);
+            List<Performance> performances = admin.performances();
+            performances.addAll(performanceRepository.findAllById(adminSelect.performanceIds()));
+
             AdminPerformance adminPerformance = AdminPerformance.builder()
                     .id(adminId)
                     .performances(performances)
                     .build();
-            adminPerformanceRepository.removeAllById(adminId);
+
             adminPerformanceRepository.save(adminPerformance);
+        } else throw new UnAuthorizationException("유효하지 않은 토큰입니다. 관리자 권한을 확인하세요.");
+    }
+
+    @Transactional
+    public void deletePerformanceByAdmin(Long adminId, AdminSelect adminSelect) {
+        if(Objects.equals(adminId, this.adminId)) {
+            AdminPerformance admin = adminPerformanceRepository.getAdminPerformanceById(adminId);
+            List<Performance> performances = admin.performances();
+            List<Performance> toRemove = performanceRepository.findAllById(adminSelect.performanceIds());
+            performances.removeAll(toRemove);
         } else throw new UnAuthorizationException("유효하지 않은 토큰입니다. 관리자 권한을 확인하세요.");
     }
 

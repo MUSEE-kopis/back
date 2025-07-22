@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>공연 검색 및 추천 관리</title>
+    <meta charset="UTF-8" />
+    <style>
+        /* 간단한 스타일 */
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { margin-top: 30px; }
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 5px 0; }
+        label { cursor: pointer; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+<h2>공연 검색</h2>
+
+<form id="search-form">
+    <input type="text" id="search-input" placeholder="공연명 검색어 입력" required />
+    <button type="submit">검색</button>
+</form>
+
+<hr/>
+
+<h2>검색 결과</h2>
+<div>
+    <form id="recommend-form">
+        <ul id="search-results">
+            <li>검색어를 입력하고 검색 버튼을 누르세요.</li>
+        </ul>
+        <button type="submit">선택한 공연 추천 등록</button>
+    </form>
+</div>
+
+<hr/>
+
+<h2>현재 추천된 공연 목록</h2>
+<form id="delete-form">
+    <ul id="recommended-performances">
+        <li>추천된 공연 목록을 불러오는 중입니다...</li>
+    </ul>
+    <button type="submit">선택한 추천 공연 삭제</button>
+</form>
+
+<script th:inline="javascript">
+    const adminId = /*[[${token}]]*/ '';
+</script>
+
+<script>
+    // 추천 공연 목록 불러오기
+    async function fetchRecommendedPerformances() {
+        try {
+            const res = await fetch('/performances/custom');
+            const data = await res.json();
+
+            const list = document.getElementById('recommended-performances');
+            list.innerHTML = '';
+
+            if (data.length === 0) {
+                list.innerHTML = '<li>현재 추천된 공연이 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(perf => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <label>
+                        <input type="checkbox" name="performanceIds" value="${perf.id}" />
+                        ${perf.performanceName}
+                    </label>
+                `;
+                list.appendChild(li);
+            });
+        } catch (err) {
+            alert('추천 공연 목록 불러오기 실패: ' + err.message);
+        }
+    }
+
+    // 공연 검색 결과 보여주기
+    async function searchPerformances(keyword) {
+        try {
+            const res = await fetch(`/performances/search?search=${encodeURIComponent(keyword)}`);
+            const data = await res.json();
+
+            const list = document.getElementById('search-results');
+            list.innerHTML = '';
+
+            if (data.length === 0) {
+                list.innerHTML = '<li>검색 결과가 없습니다.</li>';
+                return;
+            }
+
+            data.forEach(perf => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <label>
+                        <input type="checkbox" name="performanceIds" value="${perf.id}" />
+                        ${perf.performanceName}
+                    </label>
+                `;
+                list.appendChild(li);
+            });
+        } catch (err) {
+            alert('검색 실패: ' + err.message);
+        }
+    }
+
+    // 검색 폼 제출 처리 (검색 API 호출)
+    document.getElementById('search-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const keyword = document.getElementById('search-input').value.trim();
+        if (!keyword) {
+            alert('검색어를 입력하세요.');
+            return;
+        }
+        await searchPerformances(keyword);
+    });
+
+    // 추천 공연 등록
+    document.getElementById('recommend-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // 검색 결과에서 선택된 공연 ID 수집
+        const checked = document.querySelectorAll('#search-results input[name="performanceIds"]:checked');
+        if (checked.length === 0) {
+            alert('추천 등록할 공연을 하나 이상 선택해주세요.');
+            return;
+        }
+
+        const ids = Array.from(checked).map(cb => Number(cb.value));
+        const payload = { performanceIds: ids };
+
+        try {
+            const res = await fetch('/performances/custom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminId}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('추천 공연이 등록되었습니다.');
+                // 추천 공연 목록 갱신 + 검색 결과 체크박스 해제
+                await fetchRecommendedPerformances();
+                document.getElementById('recommend-form').reset();
+            } else {
+                const msg = await res.text();
+                alert('추천 등록 실패: ' + msg);
+            }
+        } catch (err) {
+            alert('추천 등록 요청 실패: ' + err.message);
+        }
+    });
+
+    // 추천 공연 삭제
+    document.getElementById('delete-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // 추천 공연 목록에서 선택된 공연 ID 수집
+        const checked = document.querySelectorAll('#recommended-performances input[name="performanceIds"]:checked');
+        if (checked.length === 0) {
+            alert('삭제할 추천 공연을 하나 이상 선택해주세요.');
+            return;
+        }
+
+        const ids = Array.from(checked).map(cb => Number(cb.value));
+        const payload = { performanceIds: ids };
+
+        try {
+            const res = await fetch('/performances/custom', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminId}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert('추천 공연이 삭제되었습니다.');
+                await fetchRecommendedPerformances();
+            } else {
+                const msg = await res.text();
+                alert('삭제 실패: ' + msg);
+            }
+        } catch (err) {
+            alert('삭제 요청 실패: ' + err.message);
+        }
+    });
+
+    // 초기 로드 시 추천 공연 목록 가져오기
+    document.addEventListener('DOMContentLoaded', fetchRecommendedPerformances);
+</script>
+</body>
+</html>
