@@ -50,7 +50,7 @@ public class PerformanceController {
     }
 
     /**
-     * @apiNote Current Performances
+     * @apiNote Performances Recommend By Admin
      * @return List<PerformanceResponse>
      */
     @Operation(summary = "관리자 지정 추천", description = "현재 진행중인 공연 중에서 관리자가 선택한 공연을 보여줍니다.")
@@ -60,6 +60,7 @@ public class PerformanceController {
     }
 
     /**
+     * @apiNote Performance Create By Admin
      * @param Long adminId
      * @param AdminSelect adminSelect
      * @return
@@ -71,6 +72,12 @@ public class PerformanceController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * @apiNote Performance Delete By Admin
+     * @param Long adminId
+     * @param AdminSelect adminSelect
+     * @return
+     */
     @DeleteMapping("/custom")
     public ResponseEntity<Void> deletePerformanceByAdmin(@Auth Long adminId, @RequestBody AdminSelect adminSelect) {
         performanceService.deletePerformanceByAdmin(adminId, adminSelect);

@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminService {
 
+    private final PasswordEncoder passwordEncoder;
     @Value("${admin.id}")
     private String adminId;
     @Value("${admin.password-hash}")
     private String passwordHash;
     @Value("${admin.LongId}")
     private Long adminLongId;
-    private final PasswordEncoder passwordEncoder;
 
     public Long login(AdminInfo adminInfo) {
         if (!adminInfo.adminId().equals(adminId) ||
