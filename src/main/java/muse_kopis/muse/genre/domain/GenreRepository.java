@@ -19,7 +19,6 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
                 .orElseThrow(() -> new NotFoundGenreException("장르가 없습니다.")).getFirst();
     }
     List<Genre> findAllByPerformance(Performance performance);
-    List<Genre> findAllByGenre(GenreType genreType);
     @Query("SELECT g.genre " +
             "FROM Genre g " +
             "WHERE g.performance = :performance " +
