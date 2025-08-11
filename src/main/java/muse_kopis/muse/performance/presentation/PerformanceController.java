@@ -45,8 +45,8 @@ public class PerformanceController {
     @Operation(summary = "검색",
             description = "검색어를 통해 공연을 조회합니다.")
     @GetMapping("/search")
-    public ResponseEntity<List<PerformanceResponse>> searchPerformance(@RequestParam(name = "search") String search) {
-        return ResponseEntity.ok().body(performanceService.findAllPerformanceBySearch(search));
+    public ResponseEntity<List<PerformanceResponse>> searchPerformance(@RequestParam(name = "keyword") String keyword) {
+        return ResponseEntity.ok().body(performanceService.findAllPerformanceBySearch(keyword));
     }
 
     /**
