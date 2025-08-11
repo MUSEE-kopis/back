@@ -2,13 +2,13 @@ package muse_kopis.muse.performance.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,13 +18,19 @@ import muse_kopis.muse.actor.domain.FavoriteActor;
 import muse_kopis.muse.actor.domain.FavoriteActorRepository;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
 import muse_kopis.muse.auth.oauth.domain.OauthMemberRepository;
+import muse_kopis.muse.common.auth.UnAuthorizationException;
+import muse_kopis.muse.common.performance.AdminNotSelectPerformanceException;
+import muse_kopis.muse.performance.domain.AdminPerformance;
+import muse_kopis.muse.performance.domain.AdminPerformanceRepository;
 import muse_kopis.muse.performance.domain.Performance;
 import muse_kopis.muse.performance.domain.PerformanceRepository;
+import muse_kopis.muse.performance.domain.dto.AdminSelect;
 import muse_kopis.muse.performance.domain.dto.PerformanceResponse;
 import muse_kopis.muse.genre.domain.GenreType;
 import muse_kopis.muse.performance.infra.PerformanceClient;
 import muse_kopis.muse.usergenre.domain.UserGenre;
 import muse_kopis.muse.usergenre.domain.UserGenreRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +42,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PerformanceService {
 
+    @Value("${adminId}")
+    private Long adminId;
     private final static String CURRENT = "공연중";
     private final static String COMPLETE = "공연완료";
     private final PerformanceRepository performanceRepository;
@@ -43,7 +51,7 @@ public class PerformanceService {
     private final OauthMemberRepository oauthMemberRepository;
     private final PerformanceClient performanceClient;
     private final FavoriteActorRepository favoriteActorRepository;
-
+    private final AdminPerformanceRepository adminPerformanceRepository;
 
     public List<PerformanceResponse> fetchPopularPerformance() {
         return performanceClient.fetchPopularPerformance();
@@ -65,11 +73,37 @@ public class PerformanceService {
 
     @Transactional
     public List<PerformanceResponse> findAllPerformance(){
-        return performanceRepository.findPerformancesByDate(LocalDate.now())
+        return adminPerformanceRepository.findById(adminId)
+                .orElseThrow(() -> new AdminNotSelectPerformanceException("지정된 공연 리스트가 없습니다."))
+                .performances()
                 .stream()
-                .map(PerformanceResponse::from)
-                .limit(7)
-                .collect(Collectors.toList());
+                .map(PerformanceResponse::from).toList();
+    }
+
+    @Transactional
+    public void selectPerformanceByAdmin(Long adminId, AdminSelect adminSelect) {
+        if(Objects.equals(adminId, this.adminId)) {
+            AdminPerformance admin = adminPerformanceRepository.getAdminPerformanceById(adminId);
+            List<Performance> performances = admin.performances();
+            performances.addAll(performanceRepository.findAllById(adminSelect.performanceIds()));
+
+            AdminPerformance adminPerformance = AdminPerformance.builder()
+                    .id(adminId)
+                    .performances(performances)
+                    .build();
+
+            adminPerformanceRepository.save(adminPerformance);
+        } else throw new UnAuthorizationException("유효하지 않은 토큰입니다. 관리자 권한을 확인하세요.");
+    }
+
+    @Transactional
+    public void deletePerformanceByAdmin(Long adminId, AdminSelect adminSelect) {
+        if(Objects.equals(adminId, this.adminId)) {
+            AdminPerformance admin = adminPerformanceRepository.getAdminPerformanceById(adminId);
+            List<Performance> performances = admin.performances();
+            List<Performance> toRemove = performanceRepository.findAllById(adminSelect.performanceIds());
+            performances.removeAll(toRemove);
+        } else throw new UnAuthorizationException("유효하지 않은 토큰입니다. 관리자 권한을 확인하세요.");
     }
 
     @Transactional
