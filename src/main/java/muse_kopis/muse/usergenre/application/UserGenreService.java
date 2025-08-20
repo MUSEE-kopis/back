@@ -92,7 +92,6 @@ public class UserGenreService {
         Set<Performance> result = new LinkedHashSet<>(); // 중복 방지를 위해 Set 사용
         Set<String> normalizedTitles = new LinkedHashSet<>();
         List<Performance> performances = performanceRepository.findRandomSamplesByGenres(genreTypes, limitPerGenre);
-        log.info(performances.toString());
         for (Performance p : performances) {
             if (result.size() >= TOTAL_TARGET) break;
             String normalized = PerformanceNameNormalizer.normalizeTitle(p.getPerformanceName());
@@ -100,9 +99,8 @@ public class UserGenreService {
                     result.add(p);
             }
         }
-        log.info(result.toString());
         // 2. 부족한 경우 전체 공연에서 보충
-        if (result.size() < TOTAL_TARGET) {
+        while (result.size() < TOTAL_TARGET) {
             int remaining = TOTAL_TARGET - result.size();
             Set<Long> excludedIds = result.stream().map(Performance::getId).collect(Collectors.toSet());
             List<Performance> extra = performanceRepository.findRandomPerformancesExcludingIds(excludedIds, remaining * 2);
