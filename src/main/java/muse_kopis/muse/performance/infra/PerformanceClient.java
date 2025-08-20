@@ -30,6 +30,7 @@ import muse_kopis.muse.performance.domain.dto.KOPISPerformanceDetailResponse.Det
 import muse_kopis.muse.performance.domain.dto.KOPISPerformanceResponse;
 import muse_kopis.muse.performance.domain.dto.KOPISPerformanceResponse.DB;
 import muse_kopis.muse.performance.domain.dto.PerformanceResponse;
+import muse_kopis.muse.performance.shared.normalizer.PerformanceNameNormalizer;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -130,47 +131,33 @@ public class PerformanceClient {
             for (Boxof apiPerf : boxofList) {
                 Optional<Map.Entry<Performance, Integer>> bestMatchEntry = allPerformances.stream()
                         .map(dbPerf -> {
-                            int titleDistance = levenshtein.apply(normalizeTitle(dbPerf.getPerformanceName()), normalizeTitle(apiPerf.prfnm()));
+                            int titleDistance = levenshtein.apply(PerformanceNameNormalizer.normalizeTitle(dbPerf.getPerformanceName()), PerformanceNameNormalizer.normalizeTitle(apiPerf.prfnm()));
                             int venueDistance = levenshtein.apply(dbPerf.getVenue().replaceAll(BLANK_OR_PARENTHESIS, ""), apiPerf.prfplcnm().replaceAll(BLANK_OR_PARENTHESIS, ""));
 
                             if (titleDistance <= 3 && venueDistance <= 5) {
-                                // 공연과 (제목 거리 + 공연장 거리) 점수를 쌍으로 반환합니다.
                                 return Optional.of(Map.entry(dbPerf, titleDistance + venueDistance));
                             }
                             return Optional.<Map.Entry<Performance, Integer>>empty();
                         })
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        // 점수가 가장 낮은(유사도가 가장 높은) 항목을 찾습니다.
                         .min(Comparator.comparingInt(Map.Entry::getValue));
-                // 해당 API 공연에 대한 최적의 매칭을 찾았다면, 전체 결과 Map에 반영합니다.
                 bestMatchEntry.ifPresent(entry -> {
                     Performance performance = entry.getKey();
                     Integer score = entry.getValue();
-                    // merge를 사용하여 이미 Map에 있는 공연이면 더 낮은 점수로 갱신하고, 없으면 새로 추가합니다.
                     bestMatches.merge(performance, score, Integer::min);
                 });
             }
-
-            // Map에 저장된 고유한 공연들을 점수 순(오름차순)으로 정렬하고 상위 6개를 선택합니다.
             List<Performance> collect = bestMatches.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
                     .limit(6)
                     .toList();
-
             log.info("collect : {}", collect.toString());
             return collect.stream().map(PerformanceResponse::from).collect(Collectors.toList());
-
         } catch (Exception e) {
             throw new NotFoundPerformanceException("공연을 찾을 수 없습니다.");
         }
-    }
-
-    private String normalizeTitle(String title) {
-        String normalized = title.replaceAll("뮤지컬|연극|오리지널|내한|공연", "");
-        normalized = normalized.replaceAll("[^a-z0-9가-힣]", "").trim();
-        return normalized;
     }
 
     private KOPISPerformanceDetailResponse fetchPerformanceDetail(String performanceId) throws JsonProcessingException {

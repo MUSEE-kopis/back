@@ -3,6 +3,7 @@ package muse_kopis.muse.performance.domain;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import muse_kopis.muse.common.performance.NotFoundPerformanceException;
 import muse_kopis.muse.genre.domain.GenreType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,15 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     default Performance getByPerformanceNameAndVenue(String performanceName, String venue) {
         return findByPerformanceNameAndVenue(performanceName, venue)
                 .orElseThrow(() -> new NotFoundPerformanceException("공연을 찾을 수 없습니다."));
+    }
+
+    default List<Performance> findRandomSamplesByGenres(List<GenreType> genres, int limitPerGenre) {
+        // Enum 리스트를 String 리스트로 변환하는 로직을 여기에 캡슐화
+        List<String> genreNames = genres.stream()
+                .map(Enum::name)
+                .toList();
+        // 실제 쿼리 메서드 호출
+        return findRandomSamplesByGenreNames(genreNames, limitPerGenre);
     }
 
     @Query("SELECT p FROM Performance p WHERE p.state = :state ORDER BY function('RAND')")
@@ -45,12 +55,31 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
             "WHERE a.name = :favoriteActor")
     List<Performance> findPerformancesByFavoriteActor(@Param("favoriteActor") String favoriteActor);
 
-    @Query(value = "SELECT p FROM Performance p WHERE p.genreType = :genreType ORDER BY FUNCTION('RAND')")
-    List<Performance> findRandomByGenreType(@Param("genreType") GenreType genreType);
+    @Query(value = """
+        WITH RandomizedPerformances AS (
+            SELECT
+                p.*,
+                ROW_NUMBER() OVER(PARTITION BY p.genre_type ORDER BY RAND()) as rn
+            FROM
+                performance p
+            WHERE
+                p.genre_type IN :genres
+        )
+        SELECT * FROM RandomizedPerformances WHERE rn <= :limitPerGenre
+    """, nativeQuery = true)
+    List<Performance> findRandomSamplesByGenreNames(
+            @Param("genres") List<String> genres,
+            @Param("limitPerGenre") int limitPerGenre
+    );
+
+    @Query(value = "SELECT * FROM performance WHERE id NOT IN :excludedIds ORDER BY RAND() LIMIT :limit", nativeQuery = true)
+    List<Performance> findRandomPerformancesExcludingIds(
+            @Param("excludedIds") Set<Long> excludedIds,
+            @Param("limit") int limit
+    );
+
     @Query("SELECT p FROM Performance p WHERE REPLACE(p.performanceName, ' ', '') LIKE %:keyword%")
     List<Performance> findAllByPerformanceNameContains(@Param("keyword") String keyword);
-    List<Performance> findByPerformanceName(String performanceName);
-    List<Performance> findAllByIdIn(List<Long> performanceIds);
     List<Performance> findAllByStateOrState(String currentPerformances, String upcomingPerformances);
     List<Performance> findAllByGenreType(GenreType genreType);
     Optional<Performance> findByPerformanceNameAndVenue(String performanceName, String venue);
