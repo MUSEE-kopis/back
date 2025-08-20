@@ -13,7 +13,6 @@ public class PerformanceNameNormalizer {
         normalized = normalized.replaceAll("[<>]|[\\[\\]]", "");
         normalized = normalized.replaceAll("NOL 스페셜 스테이지|뮤지컬|연극|오리지널|내한|공연", "");
         normalized = normalized.replaceAll("[^a-zA-Z0-9가-힣]", "").trim();
-        log.info("Normalized title: {} Origin: {}", normalized, title);
         return normalized;
     }
 }
