@@ -1,5 +1,6 @@
 package muse_kopis.muse.photo.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +19,7 @@ public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length=2048)
     private String url;
     @ManyToOne
     @JoinColumn(name = "ticket_book_id")

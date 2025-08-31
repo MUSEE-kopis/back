@@ -554,7 +554,7 @@
     // 공연 검색 결과 보여주기
     async function searchPerformances(keyword) {
         try {
-            const res = await fetch(`/performances/search?search=${encodeURIComponent(keyword)}`);
+            const res = await fetch(`/performances/search?keyword=${encodeURIComponent(keyword)}`);
             const data = await res.json();
 
             const list = document.getElementById('search-results');

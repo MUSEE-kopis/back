@@ -56,6 +56,13 @@ dependencies {
 
 	// Spring Context Support (for XML processing)
 	implementation 'org.springframework:spring-context-support:5.3.23'
+
+	// Actuator 기본 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Prometheus 연동을 위한 라이브러리 (이 부분이 없을 가능성이 높습니다)
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	//	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.32'
 	compileOnly 'org.projectlombok:lombok'

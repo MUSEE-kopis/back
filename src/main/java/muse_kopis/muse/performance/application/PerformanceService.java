@@ -108,6 +108,7 @@ public class PerformanceService {
 
     @Transactional
     public List<PerformanceResponse> findAllPerformanceBySearch(String search) {
+        search = search.replaceAll(" ","");
         return performanceRepository.findAllByPerformanceNameContains(search)
                 .stream()
                 .map(PerformanceResponse::from)
