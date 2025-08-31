@@ -71,8 +71,7 @@ public class PhotoServiceImpl implements PhotoService {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         try{
             PutObjectRequest putObjectRequest =
-                    new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata)
-                            .withCannedAcl(CannedAccessControlList.PublicRead);
+                    new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata);
             amazonS3.putObject(putObjectRequest);
         }catch (Exception e){
             throw new S3Exception("s3에 이미지 입력을 실패했습니다.");
