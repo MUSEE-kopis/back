@@ -56,17 +56,21 @@ public interface PerformanceRepository extends JpaRepository<Performance, Long> 
     List<Performance> findPerformancesByFavoriteActor(@Param("favoriteActor") String favoriteActor);
 
     @Query(value = """
-        WITH RandomizedPerformances AS (
+    WITH RandomizedPerformances AS (
+        SELECT
+            p.*,
+            ROW_NUMBER() OVER (PARTITION BY p.genre_type ORDER BY p.random_val) AS rn
+        FROM (
             SELECT
-                p.*,
-                ROW_NUMBER() OVER(PARTITION BY p.genre_type ORDER BY RAND()) as rn
+                p.*, RAND() AS random_val
             FROM
                 performance p
             WHERE
                 p.genre_type IN :genres
-        )
-        SELECT * FROM RandomizedPerformances WHERE rn <= :limitPerGenre
-    """, nativeQuery = true)
+        ) p
+    )
+    SELECT * FROM RandomizedPerformances WHERE rn <= :limitPerGenre
+""", nativeQuery = true)
     List<Performance> findRandomSamplesByGenreNames(
             @Param("genres") List<String> genres,
             @Param("limitPerGenre") int limitPerGenre
