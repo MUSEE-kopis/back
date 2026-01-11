@@ -42,16 +42,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PerformanceService {
 
-    @Value("${adminId}")
-    private Long adminId;
     private final static String CURRENT = "공연중";
     private final static String COMPLETE = "공연완료";
+
     private final PerformanceRepository performanceRepository;
     private final UserGenreRepository userGenreRepository;
     private final OauthMemberRepository oauthMemberRepository;
     private final PerformanceClient performanceClient;
     private final FavoriteActorRepository favoriteActorRepository;
     private final AdminPerformanceRepository adminPerformanceRepository;
+
+    @Value("${adminId}")
+    private Long adminId;
 
     public List<PerformanceResponse> fetchPopularPerformance() {
         return performanceClient.fetchPopularPerformance();

@@ -1,11 +1,13 @@
 package muse_kopis.muse.actor.application;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import muse_kopis.muse.actor.domain.Actor;
 import muse_kopis.muse.actor.domain.ActorRepository;
 import muse_kopis.muse.actor.domain.CastMemberRepository;
 import muse_kopis.muse.actor.domain.dto.ActorDto;
+import muse_kopis.muse.actor.domain.dto.ActorWithPerformanceDto;
 import muse_kopis.muse.auth.oauth.domain.OauthMember;
 import muse_kopis.muse.auth.oauth.domain.OauthMemberRepository;
 import muse_kopis.muse.actor.domain.FavoriteActor;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ActorService {
 
@@ -32,7 +35,6 @@ public class ActorService {
     private final CastMemberRepository castMemberRepository;
     private final PerformanceRepository performanceRepository;
 
-    @Transactional
     public Long favorite(Long memberId, String actorsName, String actorId, String url) {
         OauthMember oauthMember = oauthMemberRepository.getByOauthMemberId(memberId);
         UserGenre userGenre = userGenreRepository.getUserGenreByOauthMember(oauthMember);
@@ -68,5 +70,24 @@ public class ActorService {
                             .url(actor.getUrl())
                             .build();
                 }).collect(Collectors.toList());
+    }
+
+    public List<ActorWithPerformanceDto> actors() {
+        List<Actor> allActors = actorRepository.findAll();
+        Map<String, List<String>> actorPerformanceMap = castMemberRepository.findAll().stream()
+                .collect(Collectors.groupingBy(castMember -> castMember.getActor().getActorId(),
+                        Collectors.mapping(
+                                castMember -> castMember.getPerformance().getPerformanceName(),
+                                Collectors.toList()
+                        )
+                ));
+        return allActors.stream()
+                .map(actor -> ActorWithPerformanceDto
+                        .from(
+                                actor,
+                                actorPerformanceMap.getOrDefault(actor.getActorId(), List.of())
+                        )
+                )
+                .toList();
     }
 }

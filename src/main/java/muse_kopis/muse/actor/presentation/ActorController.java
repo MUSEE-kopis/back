@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import muse_kopis.muse.actor.application.ActorService;
 import muse_kopis.muse.actor.domain.dto.ActorDto;
+import muse_kopis.muse.actor.domain.dto.ActorWithPerformanceDto;
 import muse_kopis.muse.auth.Auth;
 import muse_kopis.muse.actor.domain.dto.CastMemberDto;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class ActorController {
      * @return List<ActorDto>
      */
     @GetMapping
-    @Operation(summary = "관심 배우 조회", description = "관심 배우를 조회합니다.")
+    @Operation(summary = "관심 배우 조회", description = "사용자가 기존에 선택한 관심 배우를 조회합니다.")
     public ResponseEntity<List<ActorDto>> favorites(@Auth Long memberId) {
         return ResponseEntity.ok().body(actorService.favorites(memberId));
     }
@@ -66,5 +67,15 @@ public class ActorController {
             @PathVariable Long performanceId,
             @RequestParam @NotBlank String actorName) {
         return ResponseEntity.ok().body(actorService.findActorsByPerformanceId(performanceId, actorName));
+    }
+
+    /**
+     * @apiNote Search All Actor with Performance Name
+     * @return List<ActorWithPerformanceDto>
+     */
+    @GetMapping("/all")
+    @Operation(summary = "모든 배우 조회", description = "모든 배우를 조회합니다.")
+    public ResponseEntity<List<ActorWithPerformanceDto>> findAllActors() {
+        return ResponseEntity.ok().body(actorService.actors());
     }
 }
